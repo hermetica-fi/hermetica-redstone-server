@@ -7,7 +7,8 @@ import {
   broadcastTransaction,
   AnchorMode,
   bufferCV,
-  callReadOnlyFunction
+  callReadOnlyFunction,
+  PostConditionMode
 } from '@stacks/transactions';
 import { StacksTestnet, StacksMainnet } from '@stacks/network';
 import dotenv from 'dotenv';
@@ -34,7 +35,8 @@ wallet = generateNewAccount(wallet);
 const privKey = wallet.accounts[0].stxPrivateKey;
 
 // Start cron job, executing every day at 12:02
-cron.schedule('0 12 * * *', async () => {
+cron.schedule('2 12 * * *', async () => {
+
   // Read current-cycle-expiry
   const options = {
     contractAddress,
@@ -44,20 +46,18 @@ cron.schedule('0 12 * * *', async () => {
     network,
     senderAddress: contractAddress,
   };
-
   const currentCycleExpiry = await callReadOnlyFunction(options);
-  // let currentCycleExpiry = 1674518400000;
 
   // Get historical STX prices in a range of time
   const prices = await redstone.getHistoricalPrice("STX", {
-    startDate: currentCycleExpiry - 30 * secInMs, // 30sec before expiry
-    endDate: currentCycleExpiry + 90 * secInMs, // 90sec after expiry
+    startDate: Number(currentCycleExpiry.value) - 30 * secInMs, // 30sec before expiry
+    endDate: Number(currentCycleExpiry.value) + 90 * secInMs, // 90sec after expiry
     interval: 30 * 1000, // 30 seconds
   });
 
-  // filter out the first timestamp after the currentCycleExpiry
-  let price = prices.filter((price) => price.timestamp > currentCycleExpiry)[0]
-    
+  // Filter out the first timestamp after the currentCycleExpiry
+  let price = prices.filter((price) => price.timestamp > Number(currentCycleExpiry.value))[0]
+ 
   // Convert price data to format for contract call
   const packageCV = pricePackageToCV({
     timestamp: price.timestamp,
@@ -79,7 +79,7 @@ cron.schedule('0 12 * * *', async () => {
     validateWithAbi: true,
     network,
     anchorMode: AnchorMode.Any,
-    PostConditionMode: 'Allow',
+    postConditionMode: PostConditionMode.Allow,
   }
 
   const transaction = await makeContractCall(txOptions);
