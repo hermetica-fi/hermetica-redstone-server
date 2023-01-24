@@ -80,7 +80,6 @@ cron.schedule('0 12 * * *', async () => {
     network,
     anchorMode: AnchorMode.Any,
     PostConditionMode: 'Allow',
-    nonce: 92
   }
 
   const transaction = await makeContractCall(txOptions);
