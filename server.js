@@ -7,6 +7,7 @@ import {
   broadcastTransaction,
   AnchorMode,
   bufferCV,
+  uintCV,
   callReadOnlyFunction,
   PostConditionMode
 } from '@stacks/transactions';
@@ -32,7 +33,10 @@ let wallet = await generateWallet({
   password
 });
 wallet = generateNewAccount(wallet);
-const privKey = wallet.accounts[0].stxPrivateKey;
+const privKey1 = wallet.accounts[0].stxPrivateKey;
+const privKey2 = wallet.accounts[1].stxPrivateKey;
+
+// CRON JOB FOR SUBMIT-PRICE-DATA
 
 // Start cron job, executing every day at 12:02
 cron.schedule('2 12 * * *', async () => {
@@ -75,7 +79,48 @@ cron.schedule('2 12 * * *', async () => {
       packageCV.prices,
       bufferCV(signature)
     ],
-    senderKey: privKey,
+    senderKey: privKey1,
+    validateWithAbi: true,
+    network,
+    anchorMode: AnchorMode.Any,
+    postConditionMode: PostConditionMode.Allow,
+  }
+
+  const transaction = await makeContractCall(txOptions);
+  const broadcastResponse = await broadcastTransaction(transaction, network);
+  console.log(broadcastResponse);
+},
+{
+  scheduled: true,
+  timezone: 'America/New_York'
+}
+);
+
+// Start cron job, executing every day at 12:40
+cron.schedule('40 12 * * *', async () => {
+
+  // Get current STX price
+  const price = await redstone.getPrice("STX");
+ 
+  // Convert price data to format for contract call
+  const packageCV = pricePackageToCV({
+    timestamp: price.timestamp,
+    prices: [{ symbol: price.symbol, value: price.value }]
+  });
+  const signature = liteSignatureToStacksSignature(price.liteEvmSignature);
+
+  // Make contract call to submit-price-data
+  const txOptions = {
+    contractAddress,
+    contractName,
+    functionName: 'buy-options',
+    functionArgs: [
+      packageCV.timestamp,
+      packageCV.prices,
+      bufferCV(signature),
+      uintCV(1000)
+    ],
+    senderKey: privKey2,
     validateWithAbi: true,
     network,
     anchorMode: AnchorMode.Any,
