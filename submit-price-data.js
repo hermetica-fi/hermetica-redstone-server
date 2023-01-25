@@ -1,5 +1,3 @@
-import { generateWallet, generateSecretKey, generateNewAccount } from '@stacks/wallet-sdk';
-import { TransactionVersion } from '@stacks/transactions';
 import redstone from 'redstone-api';
 import { liteSignatureToStacksSignature, pricePackageToCV } from './stacksjs-redstone.js';
 import {
@@ -11,35 +9,13 @@ import {
   callReadOnlyFunction,
   PostConditionMode
 } from '@stacks/transactions';
-import { StacksTestnet, StacksMainnet } from '@stacks/network';
-import dotenv from 'dotenv';
-dotenv.config()
 import cron from 'node-cron';
-
-// Define the Stacks network (mainnet/testnet)
-const network = new StacksTestnet();
-
-// Define contract constants
-const contractAddress = 'ST1DSH0G45GZGGDJP3YVDEXTY4X2ZA89CKB5CZ6PK';
-const contractName= "winged-feet-options-v0-7";
-
-const secInMs = 1000;
-
-// Generate a wallet and private key from a seed/secretKey
-const password = 'password';
-const secretKey = process.env.TESTNET_WALLET
-let wallet = await generateWallet({
-  secretKey,
-  password
-});
-wallet = generateNewAccount(wallet);
-const privKey1 = wallet.accounts[0].stxPrivateKey;
-const privKey2 = wallet.accounts[1].stxPrivateKey;
+import { contractAddress, contractName, network, secInMs, privKey1 } from './utils.js'
 
 // CRON JOB FOR SUBMIT-PRICE-DATA
 
 // Start cron job, executing every day at 12:02
-cron.schedule('2 12 * * *', async () => {
+cron.schedule('05 12 * * *', async () => {
 
   // Read current-cycle-expiry
   const options = {
@@ -51,6 +27,7 @@ cron.schedule('2 12 * * *', async () => {
     senderAddress: contractAddress,
   };
   const currentCycleExpiry = await callReadOnlyFunction(options);
+  console.log(currentCycleExpiry)
 
   // Get historical STX prices in a range of time
   const prices = await redstone.getHistoricalPrice("STX", {
@@ -58,6 +35,7 @@ cron.schedule('2 12 * * *', async () => {
     endDate: Number(currentCycleExpiry.value) + 90 * secInMs, // 90sec after expiry
     interval: 30 * 1000, // 30 seconds
   });
+  console.log(prices)
 
   // Filter out the first timestamp after the currentCycleExpiry
   let price = prices.filter((price) => price.timestamp > Number(currentCycleExpiry.value))[0]
@@ -96,45 +74,4 @@ cron.schedule('2 12 * * *', async () => {
 }
 );
 
-// Start cron job, executing every day at 12:40
-cron.schedule('40 12 * * *', async () => {
-
-  // Get current STX price
-  const price = await redstone.getPrice("STX");
- 
-  // Convert price data to format for contract call
-  const packageCV = pricePackageToCV({
-    timestamp: price.timestamp,
-    prices: [{ symbol: price.symbol, value: price.value }]
-  });
-  const signature = liteSignatureToStacksSignature(price.liteEvmSignature);
-
-  // Make contract call to submit-price-data
-  const txOptions = {
-    contractAddress,
-    contractName,
-    functionName: 'buy-options',
-    functionArgs: [
-      packageCV.timestamp,
-      packageCV.prices,
-      bufferCV(signature),
-      uintCV(1000)
-    ],
-    senderKey: privKey2,
-    validateWithAbi: true,
-    network,
-    anchorMode: AnchorMode.Any,
-    postConditionMode: PostConditionMode.Allow,
-  }
-
-  const transaction = await makeContractCall(txOptions);
-  const broadcastResponse = await broadcastTransaction(transaction, network);
-  console.log(broadcastResponse);
-},
-{
-  scheduled: true,
-  timezone: 'America/New_York'
-}
-);
-
-console.log('server running...')
+console.log('submit-price-data script running...')
