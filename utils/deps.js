@@ -21,5 +21,8 @@ let wallet = await generateWallet({
   password
 });
 wallet = generateNewAccount(wallet);
+wallet = generateNewAccount(wallet);
+
 export const privKey1 = wallet.accounts[0].stxPrivateKey;
 export const privKey2 = wallet.accounts[1].stxPrivateKey;
+export const privKey3 = wallet.accounts[2].stxPrivateKey;

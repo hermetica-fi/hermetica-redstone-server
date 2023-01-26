@@ -10,7 +10,7 @@ import {
   PostConditionMode
 } from '@stacks/transactions';
 import cron from 'node-cron';
-import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey2 } from '../utils/deps.js'
+import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey1, privKey2, privKey3 } from '../utils/deps.js'
 
 // CRON JOB FOR BUY-OPTIONS
 
@@ -30,7 +30,7 @@ cron.schedule('40 12-13 * * *', async () => {
   // Make contract call to submit-price-data
   let txOptions = {
     contractAddress,
-    contractNamne: contractNamePrev,
+    contractName: contractNameCurr,
     functionName: 'buy-options',
     functionArgs: [
       packageCV.timestamp,
@@ -52,7 +52,7 @@ cron.schedule('40 12-13 * * *', async () => {
   // Make contract call to submit-price-data
   txOptions = {
     contractAddress,
-    contractNamne: contractNamePrev,
+    contractName: contractNamePrev,
     functionName: 'buy-options',
     functionArgs: [
       packageCV.timestamp,
@@ -60,7 +60,7 @@ cron.schedule('40 12-13 * * *', async () => {
       bufferCV(signature),
       uintCV(1000)
     ],
-    senderKey: privKey2,
+    senderKey: privKey3,
     validateWithAbi: true,
     network,
     anchorMode: AnchorMode.Any,

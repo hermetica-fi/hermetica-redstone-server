@@ -11,15 +11,15 @@ console.log(contractNamePrev)
 console.log(contractNameCurr)
 
 let txOptions = {
-contractAddress,
-contractName: contractNamePrev,
-functionName: 'process-withdrawals-from-options',
-functionArgs: [],
-senderKey: privKey1,
-validateWithAbi: true,
-network,
-anchorMode: AnchorMode.Any,
-postConditionMode: PostConditionMode.Allow,
+  contractAddress,
+  contractName: contractNamePrev,
+  functionName: 'process-withdrawals-from-options',
+  functionArgs: [],
+  senderKey: privKey1,
+  validateWithAbi: true,
+  network,
+  anchorMode: AnchorMode.Any,
+  postConditionMode: PostConditionMode.Allow,
 }
 
 let transaction = await makeContractCall(txOptions);
@@ -38,8 +38,8 @@ txOptions = {
   network,
   anchorMode: AnchorMode.Any,
   postConditionMode: PostConditionMode.Allow,
-  }
-  
-  transaction = await makeContractCall(txOptions);
-  broadcastResponse = await broadcastTransaction(transaction, network);
-  console.log(broadcastResponse);
+}
+
+transaction = await makeContractCall(txOptions);
+broadcastResponse = await broadcastTransaction(transaction, network);
+console.log(broadcastResponse);
