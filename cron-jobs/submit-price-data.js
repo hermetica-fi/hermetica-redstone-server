@@ -1,5 +1,5 @@
 import redstone from 'redstone-api';
-import { liteSignatureToStacksSignature, pricePackageToCV } from './stacksjs-redstone.js';
+import { liteSignatureToStacksSignature, pricePackageToCV } from '../utils/stacksjs-redstone.js';
 import {
   makeContractCall,
   broadcastTransaction,
@@ -10,7 +10,7 @@ import {
   PostConditionMode
 } from '@stacks/transactions';
 import cron from 'node-cron';
-import { contractAddress, contractName, network, secInMs, privKey1 } from './utils.js'
+import { contractAddress, contractName, network, secInMs, privKey1 } from '../utils.js'
 
 // CRON JOB FOR SUBMIT-PRICE-DATA
 
@@ -48,9 +48,9 @@ cron.schedule('05 12 * * *', async () => {
   const signature = liteSignatureToStacksSignature(price.liteEvmSignature);
 
   // Make contract call to submit-price-data
-  const txOptions = {
+  let txOptions = {
     contractAddress,
-    contractName,
+    contractNamne: contractNamePrev,
     functionName: 'submit-price-data',
     functionArgs: [
       packageCV.timestamp,
@@ -64,8 +64,29 @@ cron.schedule('05 12 * * *', async () => {
     postConditionMode: PostConditionMode.Allow,
   }
 
-  const transaction = await makeContractCall(txOptions);
-  const broadcastResponse = await broadcastTransaction(transaction, network);
+  let transaction = await makeContractCall(txOptions);
+  let broadcastResponse = await broadcastTransaction(transaction, network);
+  console.log(broadcastResponse);
+
+  // Make contract call to submit-price-data
+  txOptions = {
+    contractAddress,
+    contractNamne: contractNameCurr,
+    functionName: 'submit-price-data',
+    functionArgs: [
+      packageCV.timestamp,
+      packageCV.prices,
+      bufferCV(signature)
+    ],
+    senderKey: privKey1,
+    validateWithAbi: true,
+    network,
+    anchorMode: AnchorMode.Any,
+    postConditionMode: PostConditionMode.Allow,
+  }
+
+  transaction = await makeContractCall(txOptions);
+  broadcastResponse = await broadcastTransaction(transaction, network);
   console.log(broadcastResponse);
 },
 {

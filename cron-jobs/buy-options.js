@@ -1,5 +1,5 @@
 import redstone from 'redstone-api';
-import { liteSignatureToStacksSignature, pricePackageToCV } from './stacksjs-redstone.js';
+import { liteSignatureToStacksSignature, pricePackageToCV } from '../utils/stacksjs-redstone.js';
 import {
   makeContractCall,
   broadcastTransaction,
@@ -10,11 +10,11 @@ import {
   PostConditionMode
 } from '@stacks/transactions';
 import cron from 'node-cron';
-import { contractAddress, contractName, network, secInMs, privKey2 } from './utils.js'
+import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey2 } from '../utils/deps.js'
 
 // CRON JOB FOR BUY-OPTIONS
 
-// Start cron job, executing every day at 12:40
+// Start cron job, executing every day at 12:40 and 13:40
 cron.schedule('40 12-13 * * *', async () => {
 
   // Get current STX price
@@ -28,9 +28,9 @@ cron.schedule('40 12-13 * * *', async () => {
   const signature = liteSignatureToStacksSignature(price.liteEvmSignature);
 
   // Make contract call to submit-price-data
-  const txOptions = {
+  let txOptions = {
     contractAddress,
-    contractName,
+    contractNamne: contractNamePrev,
     functionName: 'buy-options',
     functionArgs: [
       packageCV.timestamp,
@@ -45,8 +45,30 @@ cron.schedule('40 12-13 * * *', async () => {
     postConditionMode: PostConditionMode.Allow,
   }
 
-  const transaction = await makeContractCall(txOptions);
-  const broadcastResponse = await broadcastTransaction(transaction, network);
+  let transaction = await makeContractCall(txOptions);
+  let broadcastResponse = await broadcastTransaction(transaction, network);
+  console.log(broadcastResponse);
+
+  // Make contract call to submit-price-data
+  txOptions = {
+    contractAddress,
+    contractNamne: contractNamePrev,
+    functionName: 'buy-options',
+    functionArgs: [
+      packageCV.timestamp,
+      packageCV.prices,
+      bufferCV(signature),
+      uintCV(1000)
+    ],
+    senderKey: privKey2,
+    validateWithAbi: true,
+    network,
+    anchorMode: AnchorMode.Any,
+    postConditionMode: PostConditionMode.Allow,
+  }
+  
+  transaction = await makeContractCall(txOptions);
+  broadcastResponse = await broadcastTransaction(transaction, network);
   console.log(broadcastResponse);
 },
 {
