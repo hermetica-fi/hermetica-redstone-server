@@ -10,17 +10,17 @@ import {
   PostConditionMode
 } from '@stacks/transactions';
 import cron from 'node-cron';
-import { contractAddress, contractName, network, secInMs, privKey1 } from '../utils.js'
+import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey1, privKey2 } from '../utils/deps.js'
 
 // CRON JOB FOR SUBMIT-PRICE-DATA
 
-// Start cron job, executing every day at 12:02
+// Start cron job, executing every day at 12:05
 cron.schedule('05 12 * * *', async () => {
 
   // Read current-cycle-expiry
   const options = {
     contractAddress,
-    contractName,
+    contractName: contractNameCurr,
     functionName: 'get-current-cycle-expiry',
     functionArgs: [],
     network,
@@ -39,6 +39,7 @@ cron.schedule('05 12 * * *', async () => {
 
   // Filter out the first timestamp after the currentCycleExpiry
   let price = prices.filter((price) => price.timestamp > Number(currentCycleExpiry.value))[0]
+  console.log('price', price)
  
   // Convert price data to format for contract call
   const packageCV = pricePackageToCV({
@@ -47,10 +48,12 @@ cron.schedule('05 12 * * *', async () => {
   });
   const signature = liteSignatureToStacksSignature(price.liteEvmSignature);
 
+  console.log('packageCV', packageCV)
+  console.log('signature', signature)
   // Make contract call to submit-price-data
   let txOptions = {
     contractAddress,
-    contractNamne: contractNamePrev,
+    contractName: contractNameCurr,
     functionName: 'submit-price-data',
     functionArgs: [
       packageCV.timestamp,
@@ -63,22 +66,23 @@ cron.schedule('05 12 * * *', async () => {
     anchorMode: AnchorMode.Any,
     postConditionMode: PostConditionMode.Allow,
   }
-
+  console.log('txoptions', txOptions)
   let transaction = await makeContractCall(txOptions);
+  console.log('transaction', transaction)
   let broadcastResponse = await broadcastTransaction(transaction, network);
   console.log(broadcastResponse);
 
   // Make contract call to submit-price-data
   txOptions = {
     contractAddress,
-    contractNamne: contractNameCurr,
+    contractName: contractNamePrev,
     functionName: 'submit-price-data',
     functionArgs: [
       packageCV.timestamp,
       packageCV.prices,
       bufferCV(signature)
     ],
-    senderKey: privKey1,
+    senderKey: privKey2,
     validateWithAbi: true,
     network,
     anchorMode: AnchorMode.Any,
