@@ -7,10 +7,12 @@ import {
 import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey1 } from '../utils/deps.js'
 
 // Previous contract
+console.log(contractNamePrev)
+console.log(contractNameCurr)
 
 let txOptions = {
 contractAddress,
-contractNamePrev,
+contractName: contractNamePrev,
 functionName: 'process-withdrawals-from-options',
 functionArgs: [],
 senderKey: privKey1,
@@ -28,7 +30,7 @@ console.log(broadcastResponse);
 
 txOptions = {
   contractAddress,
-  contractNameCurr,
+  contractNamne: contractNameCurr,
   functionName: 'process-withdrawals-from-options',
   functionArgs: [],
   senderKey: privKey1,
