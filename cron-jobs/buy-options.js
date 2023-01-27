@@ -10,12 +10,12 @@ import {
   PostConditionMode
 } from '@stacks/transactions';
 import cron from 'node-cron';
-import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey1, privKey2, privKey3 } from '../utils/deps.js'
+import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey1, privKey2, privKey3 } from '../deps.js'
 
 // CRON JOB FOR BUY-OPTIONS
 
 // Start cron job, executing every day at 12:40 and 13:40
-cron.schedule('40 12-13 * * *', async () => {
+cron.schedule('45 13-14 * * *', async () => {
 
   // Get current STX price
   const price = await redstone.getPrice("STX");

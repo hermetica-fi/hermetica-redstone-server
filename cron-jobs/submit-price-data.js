@@ -10,12 +10,12 @@ import {
   PostConditionMode
 } from '@stacks/transactions';
 import cron from 'node-cron';
-import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey1, privKey2 } from '../utils/deps.js'
+import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey1, privKey2 } from '../deps.js'
 
 // CRON JOB FOR SUBMIT-PRICE-DATA
 
 // Start cron job, executing every day at 12:05
-cron.schedule('05 12 * * *', async () => {
+cron.schedule('5 12 * * *', async () => {
 
   // Read current-cycle-expiry
   const options = {
@@ -27,7 +27,6 @@ cron.schedule('05 12 * * *', async () => {
     senderAddress: contractAddress,
   };
   const currentCycleExpiry = await callReadOnlyFunction(options);
-  console.log(currentCycleExpiry)
 
   // Get historical STX prices in a range of time
   const prices = await redstone.getHistoricalPrice("STX", {
@@ -35,11 +34,9 @@ cron.schedule('05 12 * * *', async () => {
     endDate: Number(currentCycleExpiry.value) + 90 * secInMs, // 90sec after expiry
     interval: 30 * 1000, // 30 seconds
   });
-  console.log(prices)
 
   // Filter out the first timestamp after the currentCycleExpiry
   let price = prices.filter((price) => price.timestamp > Number(currentCycleExpiry.value))[0]
-  console.log('price', price)
  
   // Convert price data to format for contract call
   const packageCV = pricePackageToCV({
@@ -48,8 +45,6 @@ cron.schedule('05 12 * * *', async () => {
   });
   const signature = liteSignatureToStacksSignature(price.liteEvmSignature);
 
-  console.log('packageCV', packageCV)
-  console.log('signature', signature)
   // Make contract call to submit-price-data
   let txOptions = {
     contractAddress,
