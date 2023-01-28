@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "buy-options": "node cron-jobs/buy-options.js",
+    "submit-price-data": "node cron-jobs/submit-price-data.js"    
   },
   "author": "",
   "license": "ISC",
