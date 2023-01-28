@@ -14,8 +14,8 @@ import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, 
 
 // CRON JOB FOR BUY-OPTIONS
 
-// Start cron job, executing every day at 12:40 and 13:40
-cron.schedule('45 13-14 * * *', async () => {
+// Start cron job, executing every day at 12:40, 13:40, 14:40
+cron.schedule('40 12-15 * * *', async () => {
 
   // Get current STX price
   const price = await redstone.getPrice("STX");
