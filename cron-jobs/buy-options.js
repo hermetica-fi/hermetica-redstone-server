@@ -58,7 +58,7 @@ cron.schedule('40 12-15 * * *', async () => {
       packageCV.timestamp,
       packageCV.prices,
       bufferCV(signature),
-      uintCV(1000)
+      uintCV(2000)
     ],
     senderKey: privKey3,
     validateWithAbi: true,
