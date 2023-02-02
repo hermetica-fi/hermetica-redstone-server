@@ -15,7 +15,18 @@ import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, 
 // CRON JOB FOR BUY-OPTIONS
 
 // Start cron job, executing every day at 12:40, 13:40, 14:40
-cron.schedule('40 12-15 * * *', async () => {
+cron.schedule('50 12 * * *', async () => {
+
+  // Read options-for-sale
+  let options = {
+    contractAddress,
+    contractName: contractNameCurr,
+    functionName: 'get-options-for-sale',
+    functionArgs: [],
+    network,
+    senderAddress: contractAddress,
+  };
+  let optionsForSale = await callReadOnlyFunction(options);
 
   // Get current STX price
   const price = await redstone.getPrice("STX");
@@ -36,7 +47,7 @@ cron.schedule('40 12-15 * * *', async () => {
       packageCV.timestamp,
       packageCV.prices,
       bufferCV(signature),
-      uintCV(1000)
+      uintCV(Number(optionsForSale.value))
     ],
     senderKey: privKey2,
     validateWithAbi: true,
@@ -49,6 +60,17 @@ cron.schedule('40 12-15 * * *', async () => {
   let broadcastResponse = await broadcastTransaction(transaction, network);
   console.log(broadcastResponse);
 
+  // Read options-for-sale
+  options = {
+    contractAddress,
+    contractName: contractNamePrev,
+    functionName: 'get-options-for-sale',
+    functionArgs: [],
+    network,
+    senderAddress: contractAddress,
+  };
+  optionsForSale = await callReadOnlyFunction(options);
+
   // Make contract call to submit-price-data
   txOptions = {
     contractAddress,
@@ -58,7 +80,7 @@ cron.schedule('40 12-15 * * *', async () => {
       packageCV.timestamp,
       packageCV.prices,
       bufferCV(signature),
-      uintCV(2000)
+      uintCV(Number(optionsForSale.value))
     ],
     senderKey: privKey3,
     validateWithAbi: true,
