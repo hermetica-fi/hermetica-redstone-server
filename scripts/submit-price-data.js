@@ -10,7 +10,7 @@ import {
   PostConditionMode
 } from '@stacks/transactions';
 import cron from 'node-cron';
-import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey1 } from '../utils/deps.js'
+import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey1 } from '../deps.js'
 
 console.log(contractNamePrev)
 console.log(contractNameCurr)
@@ -63,7 +63,6 @@ const txOptions = {
   network,
   anchorMode: AnchorMode.Any,
   postConditionMode: PostConditionMode.Allow,
-  nonce: 107
 }
 console.log('txoptions', txOptions)
 const transaction = await makeContractCall(txOptions);
