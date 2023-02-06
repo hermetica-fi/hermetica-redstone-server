@@ -10,12 +10,12 @@ import {
   PostConditionMode
 } from '@stacks/transactions';
 import cron from 'node-cron';
-import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey1, privKey2 } from '../deps.js'
+import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey1, privKey2, privKey4, privKey5 } from '../deps.js'
 
 // CRON JOB FOR SUBMIT-PRICE-DATA
 
 // Start cron job, executing every day every minute 12:05-12:15
-cron.schedule('34-39/1 20 * * *', async () => {
+cron.schedule('1-15/1 12 * * *', async () => {
   let signature;
   let packageCV;
   // Read current-cycle-expiry
@@ -61,7 +61,7 @@ cron.schedule('34-39/1 20 * * *', async () => {
       packageCV.prices,
       bufferCV(signature)
     ],
-    senderKey: privKey1,
+    senderKey: privKey4,
     validateWithAbi: true,
     network,
     anchorMode: AnchorMode.Any,
@@ -82,7 +82,7 @@ cron.schedule('34-39/1 20 * * *', async () => {
       packageCV.prices,
       bufferCV(signature)
     ],
-    senderKey: privKey2,
+    senderKey: privKey5,
     validateWithAbi: true,
     network,
     anchorMode: AnchorMode.Any,

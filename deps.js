@@ -27,7 +27,11 @@ let wallet = await generateWallet({
 });
 wallet = generateNewAccount(wallet); 
 wallet = generateNewAccount(wallet);
+wallet = generateNewAccount(wallet);
+wallet = generateNewAccount(wallet);
 
 export const privKey1 = wallet.accounts[0].stxPrivateKey;
 export const privKey2 = wallet.accounts[1].stxPrivateKey;
 export const privKey3 = wallet.accounts[2].stxPrivateKey;
+export const privKey4 = wallet.accounts[3].stxPrivateKey;
+export const privKey5 = wallet.accounts[4].stxPrivateKey;
