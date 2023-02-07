@@ -18,7 +18,7 @@ import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, 
 // CRON JOB FOR SUBMIT-PRICE-DATA
 
 // Start cron job, executing every day every minute 12:05-12:15
-cron.schedule('37 12 * * *', async () => {
+cron.schedule('5-15/1 12 * * *', async () => {
 
   // get the first estimation of p 
   const [s, initK, t, STXv, r, firstGuessP] = await getOptionsPriceSTX()

@@ -15,7 +15,7 @@ import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, 
 // CRON JOB FOR SUBMIT-PRICE-DATA
 
 // Start cron job, executing every day every minute 12:05-12:15
-cron.schedule('1-15/1 12 * * *', async () => {
+cron.schedule('5-15/1 12 * * *', async () => {
   let signature;
   let packageCV;
   // Read current-cycle-expiry
