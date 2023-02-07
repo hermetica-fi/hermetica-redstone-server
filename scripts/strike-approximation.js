@@ -1,8 +1,10 @@
 import bs from "black-scholes";
 
 // Settings
-const targetP = 0.15
-const targetI = 20
+const targetAPY = 0.15
+const accDiff = 0.01 // acceptable difference between targetAPY and currAPY
+const approxStep = 0.002 // step increase/decrease in strike for every approximation
+const targetI = 7 // Number of iterations of approxStrike 
 
 /*
 blackScholes(s, k, t, v, r, callPut)
@@ -21,12 +23,16 @@ callPut - The type of option to be priced - "call" or "put"
 @param iterations: rounds of application of approxStrike algorithm
 */
 export function approxStrike (s, k, t, v, r, p, i) {
+  const currAPY = Math.pow(1 + p / s, 52) - 1
+
+  if (targetAPY * (1 - accDiff) <= currAPY && currAPY <= targetAPY * (1 + accDiff)) return [k, p]
   if (i >= targetI) return [k, p];
 
-  if (p < targetP) k = k * (1 - (p - targetP))
-  else k = k * (1 + (targetP - p))
+  if (currAPY < targetAPY) k = k * (1 - approxStep)
+  else k = k * (1 + approxStep)
   
   const newP = bs.blackScholes(s, k, t, v, r, "call")
-  return approxStrike(s, k, t, v, r, newP/s, i+1)
+  // console.log(`Round ${i}, currAPY: ${currAPY}, k: ${k}, oldP: ${p}, newP: ${newP}`)
+  return approxStrike(s, k, t, v, r, newP, i+1)
 }
 

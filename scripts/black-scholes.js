@@ -26,43 +26,41 @@ const TBill13W = 'https://query2.finance.yahoo.com/v7/finance/quote?symbols=%5EI
 const BTCVolBase = 'https://www.deribit.com/api/v2/public/get_volatility_index_data?currency=BTC'
 
 // (s) Current STX price
-const price = await redstone.getPrice("STX");
-console.log(`price`, price.value)
-console.log(`timestamp`, price.timestamp)
+const sRes = await redstone.getPrice("STX");
+const s = sRes.value
+const timestampS = sRes.timestamp
+console.log(`price`, s)
+console.log(`timestamp`, timestampS)
 
 // (k) Strike price
-const strike = price.value * (1 + strikeMultiplier);
-console.log(`strike`, strike)
+const initK = s * (1 + strikeMultiplier);
+console.log(`strike`, initK)
 
 // (t) Time to expiration in years
-const time = optionDays / 365
-console.log(`time`, time)
+const t = optionDays / 365
+console.log(`time`, t)
 
 // (v) Volatility as a decimal
-// Make a request for a user with a given ID
 const volRes = await axios.get(
-  BTCVolBase + `&end_timestamp=${price.timestamp}&resolution=60&start_timestamp=${price.timestamp - 60 * secInMs}`
+  BTCVolBase + `&end_timestamp=${timestampS}&resolution=60&start_timestamp=${timestampS - 60 * secInMs}`
 )
 
-const vol = volRes.data.result.data[1][4] / 100;
-console.log('vol', vol)
+const BTCv = volRes.data.result.data[1][4] / 100;
+console.log('vol', BTCv)
+const STXv = BTCv * (1 + volMultiplier)
 
 // (r) Risk free rate
-// Make a request for a user with a given ID
 const rRes = await axios.get(TBill13W);
 const r = rRes.data.quoteResponse.result[0].regularMarketPrice / 100;
 console.log('r', r)
 
 // Calculate optionsPrice according to Black-Scholes method
-const optionsPrice = bs.blackScholes(price.value, strike, time, vol * (1 + volMultiplier), r, "call")
+const firstGuessP = bs.blackScholes(s, initK, t, STXv, r, "call")
 
-console.log(`optionsPrice`, optionsPrice)
-console.log(`optionsPrice as % of price`, `${optionsPrice / price.value * 100}%`)
+console.log(`firstGuessP`, firstGuessP)
+console.log(`firstGuessP as % of price`, `${firstGuessP / s * 100}%`)
+console.log('currAPY', (Math.pow((1 + firstGuessP / s), 52) - 1) * 100 )
 
-console.log('targetAPY', Math.pow((1 + optionsPrice / price.value), 52))
+const [k, p] = approxStrike(s, initK, t, STXv, r, firstGuessP, 0)
 
-// export function approxStrike (s, k, t, v, r, p, i) {
-
-const [k, p] = approxStrike(price.value, strike, time, vol * (1 + volMultiplier), r, optionsPrice, 0)
-
-console.log('k', k, 'p', p)
+console.log('k', k, 'p', p, 'currAPY', (Math.pow((1 + p / s), 52) - 1) * 100)
