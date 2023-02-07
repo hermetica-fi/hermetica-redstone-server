@@ -17,6 +17,7 @@ export const contractNameCurr = "winged-feet-options-v0-10";
 
 // Define time constants
 export const secInMs = 1000;
+export const dayInMs = 86400 * secInMs;
 
 // Generate a wallet and private key from a seed/secretKey
 const secretKey = process.env.TESTNET_WALLET
