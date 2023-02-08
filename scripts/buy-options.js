@@ -25,7 +25,7 @@ const signature = liteSignatureToStacksSignature(price.liteEvmSignature);
 // Make contract call to submit-price-data
 let txOptions = {
   contractAddress,
-  contractName: contractNameCurr,
+  contractName: contractNamePrev,
   functionName: 'buy-options',
   functionArgs: [
     packageCV.timestamp,
@@ -33,7 +33,7 @@ let txOptions = {
     bufferCV(signature),
     uintCV(1000)
   ],
-  senderKey: privKey2,
+  senderKey: privKey1,
   validateWithAbi: true,
   network,
   anchorMode: AnchorMode.Any,
