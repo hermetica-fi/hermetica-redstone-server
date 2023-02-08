@@ -14,8 +14,8 @@ import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, 
 
 // CRON JOB FOR BUY-OPTIONS
 
-// Start cron job, executing every day at 12:40, 13:40, 14:40
-cron.schedule('50 12 * * *', async () => {
+// Start cron job, executing every day every minute 11:40-11:55
+cron.schedule('40-55/1 11 * * *', async () => {
 
   // Read options-for-sale
   let options = {
