@@ -1,5 +1,6 @@
 import redstone from 'redstone-api';
-import { liteSignatureToStacksSignature, pricePackageToCV } from '../utils/stacksjs-redstone.js';
+import cron from 'node-cron';
+
 import {
   makeContractCall,
   broadcastTransaction,
@@ -9,13 +10,24 @@ import {
   callReadOnlyFunction,
   PostConditionMode
 } from '@stacks/transactions';
-import cron from 'node-cron';
+import { liteSignatureToStacksSignature, pricePackageToCV } from '../utils/stacksjs-redstone.js';
+import { approxStrike } from "../scripts/strike-approximation.js";
+import { getOptionsPriceSTX } from '../scripts/black-scholes.js';
 import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey1, privKey2, privKey4, privKey5 } from '../deps.js'
 
 // CRON JOB FOR SUBMIT-PRICE-DATA
 
-// Start cron job, executing every day every minute 12:05-12:15
-cron.schedule('5-15/1 12 * * *', async () => {
+// Start cron job, executing every day every minute 11:05-11:15
+cron.schedule('5-15/1 11 * * *', async () => {
+
+  // get the first estimation of p 
+  const [s, initK, t, STXv, r, firstGuessP] = await getOptionsPriceSTX()
+
+  // approximate k further to get close to the targetAPY
+  const [k, p] = approxStrike(s, initK, t, STXv, r, firstGuessP, 0)
+
+  console.log('k', k, 'p', p, 'currAPY', (Math.pow((1 + p / s), 52) - 1) * 100)
+
   let signature;
   let packageCV;
   // Read current-cycle-expiry
@@ -52,46 +64,46 @@ cron.schedule('5-15/1 12 * * *', async () => {
   }
 
   // Make contract call to submit-price-data
-  // let txOptions = {
-  //   contractAddress,
-  //   contractName: contractNameCurr,
-  //   functionName: 'submit-price-data',
-  //   functionArgs: [
-  //     packageCV.timestamp,
-  //     packageCV.prices,
-  //     bufferCV(signature)
-  //   ],
-  //   senderKey: privKey4,
-  //   validateWithAbi: true,
-  //   network,
-  //   anchorMode: AnchorMode.Any,
-  //   postConditionMode: PostConditionMode.Allow,
-  // }
-
-  // let transaction = await makeContractCall(txOptions);
-  // let broadcastResponse = await broadcastTransaction(transaction, network);
-  // console.log(broadcastResponse);
-
-  // Make contract call to submit-price-data
-  txOptions = {
+  let txOptions = {
     contractAddress,
-    contractName: contractNamePrev,
+    contractName: contractNameCurr,
     functionName: 'submit-price-data',
     functionArgs: [
       packageCV.timestamp,
       packageCV.prices,
       bufferCV(signature)
     ],
-    senderKey: privKey5,
+    senderKey: privKey4,
     validateWithAbi: true,
     network,
     anchorMode: AnchorMode.Any,
     postConditionMode: PostConditionMode.Allow,
   }
 
-  transaction = await makeContractCall(txOptions);
-  broadcastResponse = await broadcastTransaction(transaction, network);
+  let transaction = await makeContractCall(txOptions);
+  let broadcastResponse = await broadcastTransaction(transaction, network);
   console.log(broadcastResponse);
+
+  // Make contract call to submit-price-data
+  // txOptions = {
+  //   contractAddress,
+  //   contractName: contractNamePrev,
+  //   functionName: 'submit-price-data',
+  //   functionArgs: [
+  //     packageCV.timestamp,
+  //     packageCV.prices,
+  //     bufferCV(signature)
+  //   ],
+  //   senderKey: privKey5,
+  //   validateWithAbi: true,
+  //   network,
+  //   anchorMode: AnchorMode.Any,
+  //   postConditionMode: PostConditionMode.Allow,
+  // }
+
+  // transaction = await makeContractCall(txOptions);
+  // broadcastResponse = await broadcastTransaction(transaction, network);
+  // console.log(broadcastResponse);
 },
 {
   scheduled: true,

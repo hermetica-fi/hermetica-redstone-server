@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "buy-options": "node cron-jobs/buy-options.js",
-    "submit-price-data": "node cron-jobs/submit-price-data.js"    
+    "submit-price-data": "node cron-jobs/submit-price-data.js"
   },
   "author": "",
   "license": "ISC",
@@ -15,6 +15,8 @@
     "@stacks/network": "^6.1.0",
     "@stacks/transactions": "^6.1.0",
     "@stacks/wallet-sdk": "^6.1.0",
+    "axios": "^1.3.2",
+    "black-scholes": "^1.1.0",
     "dotenv": "^16.0.3",
     "node-cron": "^3.0.2",
     "redstone-api": "^0.4.11"
