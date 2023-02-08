@@ -10,7 +10,7 @@ import {
   callReadOnlyFunction,
   PostConditionMode
 } from '@stacks/transactions';
-import { liteSignatureToStacksSignature, pricePackageToCV } from '../utils/stacksjs-redstone.js';
+import { liteSignatureToStacksSignature, pricePackageToCV, shiftPriceValue } from '../utils/stacksjs-redstone.js';
 import { approxStrike } from "../scripts/strike-approximation.js";
 import { getOptionsPriceSTX } from '../scripts/black-scholes.js';
 import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey1, privKey2, privKey4, privKey5 } from '../deps.js'
@@ -26,7 +26,7 @@ cron.schedule('5-15/1 11 * * *', async () => {
   // approximate k further to get close to the targetAPY
   const [k, p] = approxStrike(s, initK, t, STXv, r, firstGuessP, 0)
 
-  console.log('k', k, 'p', p, 'currAPY', (Math.pow((1 + p / s), 52) - 1) * 100)
+  console.log('k', k, 'p', p, 'finalCurrAPY', (Math.pow((1 + p / s), 52) - 1) * 100)
 
   let signature;
   let packageCV;
@@ -71,9 +71,11 @@ cron.schedule('5-15/1 11 * * *', async () => {
     functionArgs: [
       packageCV.timestamp,
       packageCV.prices,
-      bufferCV(signature)
+      bufferCV(signature),
+      uintCV(shiftPriceValue(k)),
+      uintCV(shiftPriceValue(p))
     ],
-    senderKey: privKey4,
+    senderKey: privKey1,
     validateWithAbi: true,
     network,
     anchorMode: AnchorMode.Any,
@@ -85,31 +87,30 @@ cron.schedule('5-15/1 11 * * *', async () => {
   console.log(broadcastResponse);
 
   // Make contract call to submit-price-data
-  // txOptions = {
-  //   contractAddress,
-  //   contractName: contractNamePrev,
-  //   functionName: 'submit-price-data',
-  //   functionArgs: [
-  //     packageCV.timestamp,
-  //     packageCV.prices,
-  //     bufferCV(signature)
-  //   ],
-  //   senderKey: privKey5,
-  //   validateWithAbi: true,
-  //   network,
-  //   anchorMode: AnchorMode.Any,
-  //   postConditionMode: PostConditionMode.Allow,
-  // }
+  txOptions = {
+    contractAddress,
+    contractName: contractNamePrev,
+    functionName: 'submit-price-data',
+    functionArgs: [
+      packageCV.timestamp,
+      packageCV.prices,
+      bufferCV(signature)
+    ],
+    senderKey: privKey5,
+    validateWithAbi: true,
+    network,
+    anchorMode: AnchorMode.Any,
+    postConditionMode: PostConditionMode.Allow,
+  }
 
-  // transaction = await makeContractCall(txOptions);
-  // broadcastResponse = await broadcastTransaction(transaction, network);
-  // console.log(broadcastResponse);
+  transaction = await makeContractCall(txOptions);
+  broadcastResponse = await broadcastTransaction(transaction, network);
+  console.log(broadcastResponse);
 },
 {
   scheduled: true,
   timezone: 'America/New_York'
 }
 );
-
 
 console.log('submit-price-data-bs script running...')
