@@ -112,4 +112,4 @@ cron.schedule('5-15/1 11 * * *', async () => {
 );
 
 
-console.log('submit-price-data script running...')
+console.log('submit-price-data-bs script running...')
