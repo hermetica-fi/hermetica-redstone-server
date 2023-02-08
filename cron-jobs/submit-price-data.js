@@ -52,25 +52,25 @@ cron.schedule('5-15/1 12 * * *', async () => {
   }
 
   // Make contract call to submit-price-data
-  // let txOptions = {
-  //   contractAddress,
-  //   contractName: contractNameCurr,
-  //   functionName: 'submit-price-data',
-  //   functionArgs: [
-  //     packageCV.timestamp,
-  //     packageCV.prices,
-  //     bufferCV(signature)
-  //   ],
-  //   senderKey: privKey4,
-  //   validateWithAbi: true,
-  //   network,
-  //   anchorMode: AnchorMode.Any,
-  //   postConditionMode: PostConditionMode.Allow,
-  // }
+  let txOptions = {
+    contractAddress,
+    contractName: contractNameCurr,
+    functionName: 'submit-price-data',
+    functionArgs: [
+      packageCV.timestamp,
+      packageCV.prices,
+      bufferCV(signature)
+    ],
+    senderKey: privKey4,
+    validateWithAbi: true,
+    network,
+    anchorMode: AnchorMode.Any,
+    postConditionMode: PostConditionMode.Allow,
+  }
 
-  // let transaction = await makeContractCall(txOptions);
-  // let broadcastResponse = await broadcastTransaction(transaction, network);
-  // console.log(broadcastResponse);
+  let transaction = await makeContractCall(txOptions);
+  let broadcastResponse = await broadcastTransaction(transaction, network);
+  console.log(broadcastResponse);
 
   // Make contract call to submit-price-data
   txOptions = {
