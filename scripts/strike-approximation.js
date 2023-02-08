@@ -3,8 +3,8 @@ import { STXtargetAPY } from "../settings.js";
 
 // Settings
 const accDiff = 0.01 // acceptable difference between STXtargetAPY and currAPY
-const approxStep = 0.002 // step increase/decrease in strike for every approximation
-const targetI = 7 // Number of iterations of approxStrike 
+const approxStep = 0.0015 // step increase/decrease in strike for every approximation
+const targetI = 20 // Number of iterations of approxStrike 
 
 /*
 blackScholes(s, k, t, v, r, callPut)
@@ -35,4 +35,3 @@ export function approxStrike (s, k, t, v, r, p, i) {
   console.log(`Round ${i}, currAPY: ${currAPY}, k: ${k}, oldP: ${p}, newP: ${newP}`)
   return approxStrike(s, k, t, v, r, newP, i+1)
 }
-
