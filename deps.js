@@ -12,8 +12,8 @@ dotenv.config({ path: path.resolve(__dirname, './.env') })
 export const network = new StacksTestnet();
 // Define contract constants
 export const contractAddress = 'ST1DSH0G45GZGGDJP3YVDEXTY4X2ZA89CKB5CZ6PK';
-export const contractNamePrev = "winged-feet-options-v0-8";
-export const contractNameCurr = "winged-feet-options-v0-10";
+export const contractNamePrev = "winged-feet-options-v0-10";
+export const contractNameCurr = "winged-feet-options-v0-11";
 
 // Define time constants
 export const secInMs = 1000;
