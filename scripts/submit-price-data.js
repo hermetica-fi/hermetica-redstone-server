@@ -12,20 +12,17 @@ import {
 import cron from 'node-cron';
 import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey1 } from '../deps.js'
 
-console.log(contractNamePrev)
-console.log(contractNameCurr)
-
 // Read current-cycle-expiry
 const options = {
   contractAddress,
-  contractName: contractNameCurr,
+  contractName: contractNamePrev,
   functionName: 'get-current-cycle-expiry',
   functionArgs: [],
   network,
   senderAddress: contractAddress,
 };
 const currentCycleExpiry = await callReadOnlyFunction(options);
-console.log(currentCycleExpiry)
+console.log('currentcycleExpiry', currentCycleExpiry)
 
 // Get historical STX prices in a range of time
 const prices = await redstone.getHistoricalPrice("STX", {
@@ -33,8 +30,7 @@ const prices = await redstone.getHistoricalPrice("STX", {
   endDate: Number(currentCycleExpiry.value) + 90 * secInMs, // 90sec after expiry
   interval: 30 * 1000, // 30 seconds
 });
-console.log(prices)
-
+console.log('prices', prices)
 // Filter out the first timestamp after the currentCycleExpiry
 let price = prices.filter((price) => price.timestamp > Number(currentCycleExpiry.value))[0]
 console.log('price', price)
@@ -46,12 +42,10 @@ const packageCV = pricePackageToCV({
 });
 const signature = liteSignatureToStacksSignature(price.liteEvmSignature);
 
-console.log('packageCV', packageCV)
-console.log('signature', signature)
 // Make contract call to submit-price-data
 const txOptions = {
   contractAddress,
-  contractName: contractNameCurr,
+  contractName: contractNamePrev,
   functionName: 'submit-price-data',
   functionArgs: [
     packageCV.timestamp,
@@ -64,8 +58,7 @@ const txOptions = {
   anchorMode: AnchorMode.Any,
   postConditionMode: PostConditionMode.Allow,
 }
-console.log('txoptions', txOptions)
+
 const transaction = await makeContractCall(txOptions);
-console.log('transaction', transaction)
 const broadcastResponse = await broadcastTransaction(transaction, network);
 console.log(broadcastResponse);

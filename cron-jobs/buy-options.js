@@ -82,7 +82,7 @@ cron.schedule('40-55/1 11 * * *', async () => {
       bufferCV(signature),
       uintCV(Number(optionsForSale.value))
     ],
-    senderKey: privKey3,
+    senderKey: privKey2,
     validateWithAbi: true,
     network,
     anchorMode: AnchorMode.Any,
