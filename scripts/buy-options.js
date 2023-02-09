@@ -31,7 +31,7 @@ let txOptions = {
     packageCV.timestamp,
     packageCV.prices,
     bufferCV(signature),
-    uintCV(1000)
+    uintCV(70)
   ],
   senderKey: privKey1,
   validateWithAbi: true,
