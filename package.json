@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "buy-options": "node cron-jobs/buy-options.js",
-    "submit-price-data": "node cron-jobs/submit-price-data.js",
-    "submit-price-data-bs": "node cron-jobs/submit-price-data-bs.js"
+    "submit-price-data-prev": "node cron-jobs/submit-price-data-prev.js",
+    "submit-price-data-curr": "node cron-jobs/submit-price-data-curr.js"
   },
   "author": "",
   "license": "ISC",
