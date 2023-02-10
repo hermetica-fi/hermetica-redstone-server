@@ -7,12 +7,12 @@ import {
 import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey1 } from '../deps.js'
 
 // Previous contract
-console.log(contractNamePrev)
-console.log(contractNameCurr)
+// console.log(contractNamePrev)
+// console.log(contractNameCurr)
 
 let txOptions = {
   contractAddress,
-  contractName: "winged-feet-options-v0-8",
+  contractName: "winged-feet-options-v0-10",
   functionName: 'process-withdrawals-from-options',
   functionArgs: [],
   senderKey: privKey1,
