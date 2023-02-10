@@ -10,12 +10,12 @@ import {
   PostConditionMode
 } from '@stacks/transactions';
 import cron from 'node-cron';
-import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey1, privKey2, privKey3 } from '../deps.js'
+import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, privKey1, privKey2, privKey3, privKey4, privKey5 } from '../deps.js'
 
 // CRON JOB FOR BUY-OPTIONS
 
-// Start cron job, executing every day every minute 11:40-11:55
-cron.schedule('40-55/1 11 * * *', async () => {
+// Start cron job, executing every day every minute 12:20-12:30 EST
+cron.schedule('20-30/1 12 * * *', async () => {
 
   let options = {
     contractAddress,
@@ -45,7 +45,7 @@ cron.schedule('40-55/1 11 * * *', async () => {
       bufferCV(signature),
       uintCV(Number(optionsForSale.value))
     ],
-    senderKey: privKey2,
+    senderKey: privKey5,
     validateWithAbi: true,
     network,
     anchorMode: AnchorMode.Any,
@@ -76,7 +76,7 @@ cron.schedule('40-55/1 11 * * *', async () => {
       bufferCV(signature),
       uintCV(Number(optionsForSale.value))
     ],
-    senderKey: privKey2,
+    senderKey: privKey3,
     validateWithAbi: true,
     network,
     anchorMode: AnchorMode.Any,

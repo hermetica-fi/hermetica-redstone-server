@@ -17,8 +17,8 @@ import { contractAddress, contractNamePrev, contractNameCurr, network, secInMs, 
 
 // CRON JOB FOR SUBMIT-PRICE-DATA FOR BS CONTRACT
 
-// Start cron job, executing every day every minute 11:05-11:15
-cron.schedule('5-15/1 11 * * *', async () => {
+// Start cron job, executing every day every minute 11:20-11:30
+cron.schedule('20-30/1 11 * * *', async () => {
 
   // get the first estimation of p 
   const [s, initK, t, STXv, r, firstGuessP] = await getOptionsPriceSTX()
@@ -33,7 +33,7 @@ cron.schedule('5-15/1 11 * * *', async () => {
   // Read current-cycle-expiry
   const options = {
     contractAddress,
-    contractName: contractNameCurr,
+    contractName: contractNamePrev,
     functionName: 'get-current-cycle-expiry',
     functionArgs: [],
     network,
@@ -41,7 +41,7 @@ cron.schedule('5-15/1 11 * * *', async () => {
   };
   try {
     const currentCycleExpiry = await callReadOnlyFunction(options);
-
+    console.log(currentCycleExpiry)
     // Get historical STX prices in a range of time
     const prices = await redstone.getHistoricalPrice("STX", {
       startDate: Number(currentCycleExpiry.value) - 30 * secInMs, // 30sec before expiry
@@ -51,7 +51,7 @@ cron.schedule('5-15/1 11 * * *', async () => {
 
     // Filter out the first timestamp after the currentCycleExpiry
     let price = prices.filter((price) => price.timestamp > Number(currentCycleExpiry.value))[0]
-
+    console.log(price)
     // Convert price data to format for contract call
     packageCV = pricePackageToCV({
       timestamp: price.timestamp,
@@ -66,7 +66,7 @@ cron.schedule('5-15/1 11 * * *', async () => {
   // Make contract call to submit-price-data
   let txOptions = {
     contractAddress,
-    contractName: contractNameCurr,
+    contractName: contractNamePrev,
     functionName: 'submit-price-data',
     functionArgs: [
       packageCV.timestamp,
@@ -85,29 +85,6 @@ cron.schedule('5-15/1 11 * * *', async () => {
   let transaction = await makeContractCall(txOptions);
   let broadcastResponse = await broadcastTransaction(transaction, network);
   console.log(broadcastResponse);
-
-  // Make contract call to submit-price-data
-  txOptions = {
-    contractAddress,
-    contractName: contractNamePrev,
-    functionName: 'submit-price-data',
-    functionArgs: [
-      packageCV.timestamp,
-      packageCV.prices,
-      bufferCV(signature),
-      uintCV(shiftPriceValue(k)),
-      uintCV(shiftPriceValue(p))
-    ],
-    senderKey: privKey1,
-    validateWithAbi: true,
-    network,
-    anchorMode: AnchorMode.Any,
-    postConditionMode: PostConditionMode.Allow,
-  }
-
-  transaction = await makeContractCall(txOptions);
-  broadcastResponse = await broadcastTransaction(transaction, network);
-  console.log(broadcastResponse);
 },
 {
   scheduled: true,
@@ -115,4 +92,4 @@ cron.schedule('5-15/1 11 * * *', async () => {
 }
 );
 
-console.log('submit-price-data-bs script running...')
+console.log('submit-price-data-prev script running...')
