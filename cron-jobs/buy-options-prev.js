@@ -19,7 +19,7 @@ cron.schedule('20-30/1 12 * * *', async () => {
 
   let options = {
     contractAddress,
-    contractName: contractNameCurr,
+    contractName: contractNamePrev,
     functionName: 'get-options-for-sale',
     functionArgs: [],
     network,
@@ -37,7 +37,7 @@ cron.schedule('20-30/1 12 * * *', async () => {
 
   let txOptions = {
     contractAddress,
-    contractName: contractNameCurr,
+    contractName: contractNamePrev,
     functionName: 'buy-options',
     functionArgs: [
       packageCV.timestamp,
@@ -55,37 +55,6 @@ cron.schedule('20-30/1 12 * * *', async () => {
   let transaction = await makeContractCall(txOptions);
   let broadcastResponse = await broadcastTransaction(transaction, network);
   console.log(broadcastResponse);
-
-  options = {
-    contractAddress,
-    contractName: contractNamePrev,
-    functionName: 'get-options-for-sale',
-    functionArgs: [],
-    network,
-    senderAddress: contractAddress,
-  };
-  optionsForSale = await callReadOnlyFunction(options);
-
-  txOptions = {
-    contractAddress,
-    contractName: contractNamePrev,
-    functionName: 'buy-options',
-    functionArgs: [
-      packageCV.timestamp,
-      packageCV.prices,
-      bufferCV(signature),
-      uintCV(Number(optionsForSale.value))
-    ],
-    senderKey: privKey3,
-    validateWithAbi: true,
-    network,
-    anchorMode: AnchorMode.Any,
-    postConditionMode: PostConditionMode.Allow,
-  }
-  
-  transaction = await makeContractCall(txOptions);
-  broadcastResponse = await broadcastTransaction(transaction, network);
-  console.log(broadcastResponse);
 },
 {
   scheduled: true,
@@ -93,4 +62,4 @@ cron.schedule('20-30/1 12 * * *', async () => {
 }
 );
 
-console.log('buy-options script running...')
+console.log('buy-options-prev script running...')
