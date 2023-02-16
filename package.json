@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "buy-options": "node cron-jobs/buy-options.js",
+    "buy-options-prev": "node cron-jobs/buy-options-prev.js",
+    "buy-options-curr": "node cron-jobs/buy-options-curr.js",
     "submit-price-data-prev": "node cron-jobs/submit-price-data-prev.js",
     "submit-price-data-curr": "node cron-jobs/submit-price-data-curr.js"
   },
